@@ -1,36 +1,19 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
-import { CommonModule } from '@angular/common';
-import { AuthService } from '../servises/auth.service';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [
-        CommonModule,
-        ButtonModule,
-        CheckboxModule,
-        InputTextModule,
-        PasswordModule,
-        ReactiveFormsModule,
-        RouterModule,
-        RippleModule,
-        AppFloatingConfigurator,
-        ToastModule
-    ],
-    providers: [MessageService],
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
     template: `
         <app-floating-configurator />
-        <p-toast></p-toast>
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
             <div class="flex flex-col items-center justify-center">
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
@@ -53,40 +36,26 @@ import { ToastModule } from 'primeng/toast';
                                     />
                                 </g>
                             </svg>
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to TalentIQ!</div>
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to LalentIQ!</div>
                             <span class="text-muted-color font-medium">Sign in to continue</span>
                         </div>
 
-                        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                            <div>
-                                <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                                <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-2" formControlName="email" />
-                                <div class="mb-4">
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']">Email is required</small>
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['email']">Please enter a valid email</small>
-                                </div>
+                        <div>
+                            <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
+                            <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" [(ngModel)]="email" />
 
-                                <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                                <p-password id="password1" formControlName="password" placeholder="Password" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false"></p-password>
-                                <div class="mb-4">
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']">Password is required</small>
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</small>
-                                </div>
+                            <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                            <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
 
-                                <div class="flex items-center justify-between mt-2 mb-8 gap-8">
-                                    <div class="flex items-center">
-                                        <p-checkbox formControlName="rememberMe" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                        <label for="rememberme1">Remember me</label>
-                                    </div>
-                                    <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
+                            <div class="flex items-center justify-between mt-2 mb-8 gap-8">
+                                <div class="flex items-center">
+                                    <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
+                                    <label for="rememberme1">Remember me</label>
                                 </div>
-                                <p-button label="Sign In" styleClass="w-full" type="submit" [disabled]="!loginForm.valid"></p-button>
-                                <div class="text-center mt-4">
-                                    <span class="text-muted-color">Create new account ? </span>
-                                    <a routerLink="/auth/register" class="font-medium no-underline text-primary cursor-pointer">Sign Up</a>
-                                </div>
+                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                             </div>
-                        </form>
+                            <p-button label="Sign In" styleClass="w-full" routerLink="/dashboard"></p-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -94,33 +63,9 @@ import { ToastModule } from 'primeng/toast';
     `
 })
 export class Login {
-    loginForm: FormGroup;
+    email: string = '';
 
-    constructor(
-        private fb: FormBuilder,
-        private authService: AuthService,
-        private router: Router,
-        private messageService: MessageService
-    ) {
-        this.loginForm = this.fb.group({
-            email: ['', [Validators.required, Validators.email]],
-            password: ['', [Validators.required, Validators.minLength(6)]],
-            rememberMe: [false]
-        });
-    }
+    password: string = '';
 
-    onSubmit() {
-        if (this.loginForm.valid) {
-            const { email, password } = this.loginForm.value;
-            this.authService.login(email, password).subscribe({
-                next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Login successful' });
-                    this.router.navigate(['/']);
-                },
-                error: (error) => {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message || 'Login failed' });
-                }
-            });
-        }
-    }
+    checked: boolean = false;
 }

@@ -1,0 +1,14 @@
+#Updated by LLMController
+#Mon May 12 20:23:47 GMT+01:00 2025
+gemini.api.key=AIzaSyD2MkU9PBaY0s0sGRCiSFeZwnFFqPDY-vc
+javax.xml.bind.JAXBContextFactory=org.glassfish.jaxb.runtime.v2.JAXBContextFactory
+javax.xml.bind.context.factory=org.glassfish.jaxb.runtime.v2.ContextFactory
+llm.provider=ollama
+logging.level.com.rh.cvfilter=DEBUG
+ollama.api.url=http\://localhost\:11434/api/generate
+ollama.model=mistral
+server.port=8080
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+spring.thymeleaf.cache=false
+stanford.nlp.sutime.rules=/sutime/defs.sutime.txt,/sutime/english.sutime.txt,/sutime/english.holidays.sutime.txt

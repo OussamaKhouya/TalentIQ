@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statut LLM - TalentIQ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gemini-color: #ea4335;
+            --ollama-color: #34a853;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .status-card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-card-header {
+            padding: 1.25rem;
+            position: relative;
+            color: white;
+        }
+        
+        .status-card-header.gemini {
+            background: linear-gradient(135deg, var(--gemini-color) 0%, #c5221f 100%);
+        }
+        
+        .status-card-header.ollama {
+            background: linear-gradient(135deg, var(--ollama-color) 0%, #1e8e3e 100%);
+        }
+        
+        .status-card-header.active {
+            color: white;
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        
+        .status-card-body {
+            padding: 1.25rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-indicator.active {
+            background-color: #28a745;
+        }
+        
+        .status-indicator.inactive {
+            background-color: #dc3545;
+        }
+        
+        .status-indicator.warning {
+            background-color: #ffc107;
+        }
+        
+        .config-item {
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .config-key {
+            font-weight: 500;
+            color: #6c757d;
+        }
+        
+        .config-value {
+            font-weight: 600;
+        }
+        
+        .api-test-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .api-test-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .api-test-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .active-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: white;
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="container text-center">
+            <h1 class="fw-bold mb-2">Configuration LLM</h1>
+            <p class="lead">Statut et configuration des modèles d'intelligence artificielle</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <!-- Information générale -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title mb-3">Information sur le provider actif</h3>
+                        <div class="alert" th:classappend="${accessible} ? 'alert-success' : 'alert-warning'">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="status-indicator" th:classappend="${accessible} ? 'active' : 'warning'"></span>
+                                <h5 class="mb-0">Provider: <span th:text="${provider == 'gemini' ? 'Gemini (Cloud)' : 'Ollama (Local)'}">Gemini</span></h5>
+                            </div>
+                            <p th:if="${enabled && accessible}" class="mb-0">Le service LLM est correctement configuré et accessible.</p>
+                            <p th:if="${enabled && !accessible}" class="mb-0">Le service LLM est configuré mais n'est pas accessible. Mode fallback activé.</p>
+                            <p th:if="${!enabled}" class="mb-0">Le service LLM n'est pas correctement configuré.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cartes de statut -->
+                <div class="row">
+                    <!-- Gemini -->
+                    <div class="col-md-6">
+                        <div class="status-card">
+                            <div class="status-card-header gemini" th:classappend="${provider == 'gemini'} ? 'active' : ''">
+                                <h3 class="mb-0"><i class="fab fa-google me-2"></i>Gemini (Cloud)</h3>
+                                <div th:if="${provider == 'gemini'}" class="active-badge">Actif</div>
+                            </div>
+                            <div class="status-card-body">
+                                <div class="config-item">
+                                    <span class="config-key">Clé API:</span>
+                                    <span class="config-value" th:text="${geminiApiKey}">API-KEY...</span>
+                                </div>
+                                <div class="config-item">
+                                    <span class="config-key">Nécessite Internet:</span>
+                                    <span class="config-value">Oui</span>
+                                </div>
+                                <div class="config-item">
+                                    <span class="config-key">Qualité d'analyse:</span>
+                                    <span class="config-value">Excellente</span>
+                                </div>
+                                <div class="config-item">
+                                    <span class="config-key">Vitesse de traitement:</span>
+                                    <span class="config-value">Rapide</span>
+                                </div>
+                                
+                                <div class="text-center mt-3">
+                                    <a href="/llm/config?provider=gemini" class="btn btn-outline-primary" th:classappend="${provider == 'gemini'} ? 'disabled' : ''">
+                                        <i class="fas fa-check-circle me-2" th:if="${provider == 'gemini'}"></i>
+                                        <i class="fas fa-sync-alt me-2" th:if="${provider != 'gemini'}"></i>
+                                        <span th:if="${provider == 'gemini'}">Actif</span>
+                                        <span th:if="${provider != 'gemini'}">Activer Gemini</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ollama -->
+                    <div class="col-md-6">
+                        <div class="status-card">
+                            <div class="status-card-header ollama" th:classappend="${provider == 'ollama'} ? 'active' : ''">
+                                <h3 class="mb-0"><i class="fas fa-robot me-2"></i>Ollama (Local)</h3>
+                                <div th:if="${provider == 'ollama'}" class="active-badge">Actif</div>
+                            </div>
+                            <div class="status-card-body">
+                                <div class="config-item">
+                                    <span class="config-key">URL API:</span>
+                                    <span class="config-value" th:text="${ollamaApiUrl}">http://localhost:11434/api/generate</span>
+                                </div>
+                                <div class="config-item">
+                                    <span class="config-key">Modèle:</span>
+                                    <span class="config-value" th:text="${ollamaModel}">llama3</span>
+                                </div>
+                                <div class="config-item">
+                                    <span class="config-key">Nécessite Internet:</span>
+                                    <span class="config-value">Non</span>
+                                </div>
+                                <div class="config-item">
+                                    <span class="config-key">Qualité d'analyse:</span>
+                                    <span class="config-value">Bonne</span>
+                                </div>
+                                
+                                <div class="text-center mt-3">
+                                    <a href="/llm/config?provider=ollama" class="btn btn-outline-success" th:classappend="${provider == 'ollama'} ? 'disabled' : ''">
+                                        <i class="fas fa-check-circle me-2" th:if="${provider == 'ollama'}"></i>
+                                        <i class="fas fa-sync-alt me-2" th:if="${provider != 'ollama'}"></i>
+                                        <span th:if="${provider == 'ollama'}">Actif</span>
+                                        <span th:if="${provider != 'ollama'}">Activer Ollama</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-5 mt-3">
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Retour à l'accueil
+                    </a>
+                    <a href="/llm/test" class="btn btn-secondary ms-2">
+                        <i class="fas fa-vial me-2"></i>Tester les API
+                    </a>
+                </div>
+                
+                <div class="alert alert-info mb-4">
+                    <h5><i class="fas fa-info-circle me-2"></i>À propos des providers LLM</h5>
+                    <p><strong>Gemini:</strong> Utilise l'API Gemini de Google, nécessite une clé API et une connexion Internet, mais offre une excellente qualité d'analyse.</p>
+                    <p><strong>Ollama:</strong> Utilise un modèle local qui s'exécute sur votre machine. Ne nécessite pas d'Internet après le téléchargement initial du modèle, mais peut être plus lent et légèrement moins précis selon votre matériel.</p>
+                    <p>Pour plus d'informations sur l'installation et la configuration d'Ollama, consultez <a href="/README-OLLAMA.md">le guide d'Ollama</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">© 2023 TalentIQ - Outil d'analyse de CV propulsé par l'IA</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
