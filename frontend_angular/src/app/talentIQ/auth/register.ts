@@ -13,7 +13,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-    selector: 'app-login',
+    selector: 'app-register',
     standalone: true,
     imports: [
         CommonModule,
@@ -54,36 +54,54 @@ import { ToastModule } from 'primeng/toast';
                                 </g>
                             </svg>
                             <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to TalentIQ!</div>
-                            <span class="text-muted-color font-medium">Sign in to continue</span>
+                            <span class="text-muted-color font-medium">Create your account</span>
                         </div>
 
-                        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
                             <div>
+                                <label for="fullname" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Full Name</label>
+                                <input pInputText id="fullname" type="text" placeholder="Enter your full name" class="w-full md:w-[30rem] mb-2" formControlName="fullName" />
+                                <div class="mb-4">
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.errors?.['required']">Full name is required</small>
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.errors?.['minlength']">Full name must be at least 3 characters</small>
+                                </div>
+
                                 <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
                                 <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-2" formControlName="email" />
                                 <div class="mb-4">
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']">Email is required</small>
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['email']">Please enter a valid email</small>
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['required']">Email is required</small>
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['email']">Please enter a valid email</small>
                                 </div>
 
                                 <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                                <p-password id="password1" formControlName="password" placeholder="Password" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false"></p-password>
+                                <p-password id="password1" formControlName="password" placeholder="Password" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="true"></p-password>
                                 <div class="mb-4">
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']">Password is required</small>
-                                    <small class="text-red-500 block" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</small>
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['required']">Password is required</small>
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</small>
+                                </div>
+
+                                <label for="confirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Confirm Password</label>
+                                <p-password id="confirmPassword" formControlName="confirmPassword" placeholder="Confirm password" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false"></p-password>
+                                <div class="mb-4">
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</small>
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">Passwords do not match</small>
                                 </div>
 
                                 <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                     <div class="flex items-center">
-                                        <p-checkbox formControlName="rememberMe" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                        <label for="rememberme1">Remember me</label>
+                                        <p-checkbox formControlName="termsAccepted" id="terms" binary class="mr-2"></p-checkbox>
+                                        <label for="terms">I agree to the Terms & Conditions</label>
                                     </div>
-                                    <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                                 </div>
-                                <p-button label="Sign In" styleClass="w-full" type="submit" [disabled]="!loginForm.valid"></p-button>
+                                <div class="mb-4">
+                                    <small class="text-red-500 block" *ngIf="registerForm.get('termsAccepted')?.touched && registerForm.get('termsAccepted')?.errors?.['required']">You must accept the terms and conditions</small>
+                                </div>
+
+                                <p-button label="Create Account" styleClass="w-full" type="submit" [disabled]="!registerForm.valid"></p-button>
+                                
                                 <div class="text-center mt-4">
-                                    <span class="text-muted-color">Create new account ? </span>
-                                    <a routerLink="/auth/register" class="font-medium no-underline text-primary cursor-pointer">Sign Up</a>
+                                    <span class="text-muted-color">Already have an account? </span>
+                                    <a routerLink="/auth/login" class="font-medium no-underline text-primary cursor-pointer">Sign In</a>
                                 </div>
                             </div>
                         </form>
@@ -93,8 +111,8 @@ import { ToastModule } from 'primeng/toast';
         </div>
     `
 })
-export class Login {
-    loginForm: FormGroup;
+export class Register {
+    registerForm: FormGroup;
 
     constructor(
         private fb: FormBuilder,
@@ -102,23 +120,40 @@ export class Login {
         private router: Router,
         private messageService: MessageService
     ) {
-        this.loginForm = this.fb.group({
+        this.registerForm = this.fb.group({
+            fullName: ['', [Validators.required, Validators.minLength(3)]],
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]],
-            rememberMe: [false]
+            confirmPassword: ['', [Validators.required]],
+            termsAccepted: [false, [Validators.requiredTrue]]
+        }, {
+            validators: this.passwordMatchValidator
         });
     }
 
+    passwordMatchValidator(form: FormGroup) {
+        const password = form.get('password');
+        const confirmPassword = form.get('confirmPassword');
+        
+        if (password && confirmPassword && password.value !== confirmPassword.value) {
+            confirmPassword.setErrors({ passwordMismatch: true });
+        }
+        
+        return null;
+    }
+
     onSubmit() {
-        if (this.loginForm.valid) {
-            const { email, password } = this.loginForm.value;
-            this.authService.login(email, password).subscribe({
+        if (this.registerForm.valid) {
+            const { fullName, email, password } = this.registerForm.value;
+            const user = { name: fullName, email, password };
+            
+            this.authService.register(user).subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Login successful' });
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Registration successful' });
                     this.router.navigate(['/']);
                 },
                 error: (error) => {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message || 'Login failed' });
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message || 'Registration failed' });
                 }
             });
         }
