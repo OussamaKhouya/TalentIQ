@@ -8,7 +8,6 @@ import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../servises/auth.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
@@ -98,7 +97,7 @@ import { ToastModule } from 'primeng/toast';
                                 </div>
 
                                 <p-button label="Create Account" styleClass="w-full" type="submit" [disabled]="!registerForm.valid"></p-button>
-                                
+
                                 <div class="text-center mt-4">
                                     <span class="text-muted-color">Already have an account? </span>
                                     <a routerLink="/auth/login" class="font-medium no-underline text-primary cursor-pointer">Sign In</a>
@@ -116,7 +115,6 @@ export class Register {
 
     constructor(
         private fb: FormBuilder,
-        private authService: AuthService,
         private router: Router,
         private messageService: MessageService
     ) {
@@ -134,28 +132,15 @@ export class Register {
     passwordMatchValidator(form: FormGroup) {
         const password = form.get('password');
         const confirmPassword = form.get('confirmPassword');
-        
+
         if (password && confirmPassword && password.value !== confirmPassword.value) {
             confirmPassword.setErrors({ passwordMismatch: true });
         }
-        
+
         return null;
     }
 
     onSubmit() {
-        if (this.registerForm.valid) {
-            const { fullName, email, password } = this.registerForm.value;
-            const user = { name: fullName, email, password };
-            
-            this.authService.register(user).subscribe({
-                next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Registration successful' });
-                    this.router.navigate(['/']);
-                },
-                error: (error) => {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message || 'Registration failed' });
-                }
-            });
-        }
+
     }
 }
